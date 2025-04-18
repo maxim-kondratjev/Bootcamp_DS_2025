@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-APP_DIR=$1
-REPO_URL=$2
-OPENAI_API_KEY=$3
+APP_DIR='/app'
+REPO_URL='https://github.com/maxim-kondratjev/Bootcamp_DS_2025.git'
+OPENAI_API_KEY=$OPENAI_API_KEY
 PORT=8000
 
 # 1. Установка системных зависимостей
