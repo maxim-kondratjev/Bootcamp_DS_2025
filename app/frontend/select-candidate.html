@@ -5,39 +5,142 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Профиль Кандидата</title>
 	<script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="flex flex-col justify-center items-center bg-[#2B2D33] min-h-screen font-sans">
-	<div class="bg-white shadow p-6 rounded w-full max-w-md">
-		<h1 class="mb-4 font-bold text-2xl text-center">Опишите профиль кандидата</h1>
-		<form id="persona-form" class="space-y-4">
-			<div>
-				<label for="persona-profile" class="block mb-1">Профиль:</label>
-				<input type="text" id="persona-profile" name="persona-profile" required class="p-2 border rounded w-full">
-			</div>
-			<div>
-				<label for="persona-skill" class="block mb-1">Навык, который требуется оценить:</label>
-				<input type="text" id="persona-skill" name="persona-skill" required class="p-2 border rounded w-full">
-			</div>
-			<button type="submit" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded w-full text-white">
-				Перейти к интервью
-			</button>
-		</form>
-	</div>
 	<script>
-        // Проверка наличия параметров и их валидация
-        document.getElementById('persona-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const persona_profile = document.getElementById('persona-profile').value.trim();
-            const persona_skill = document.getElementById('persona-skill').value.trim();
+		tailwind.config = {
+			theme: {
+				extend: {
+					colors: {
+						raifYellow: '#FFED00',
+						raifDark: '#2B2D33',
+						raifGray: '#6B7280',
+					}
+				}
+			}
+		}
+	</script>
+</head>
+<body class="bg-white min-h-screen">
+	<div class="min-h-screen font-sans max-w-6xl mx-auto px-4 py-12">
+		<!-- Back Button -->
+		<a href="/" class="inline-flex items-center text-raifDark hover:text-raifGray transition-colors mb-8">
+			<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+				<path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+			</svg>
+			Вернуться на главную
+		</a>
 
-            // Простая валидация на стороне клиента
-            if (!persona_profile || !persona_skill) {
-                alert('Пожалуйста, заполните оба поля: профиль и навык.');
-                return;
-            }
-            // Прямое перенаправление на страницу интервью с параметрами
-            window.location.href = `/interview?persona=${encodeURIComponent(persona_profile)}&skill=${encodeURIComponent(persona_skill)}`;
-        });
-    </script>
+		<!-- Main Content -->
+		<div class="max-w-2xl mx-auto">
+			<div class="text-center mb-8">
+				<h1 class="text-3xl md:text-4xl font-bold text-raifDark mb-4">Профиль кандидата</h1>
+				<p class="text-raifGray text-lg">Настройте параметры виртуального собеседования</p>
+			</div>
+
+			<div class="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+				<form id="persona-form" class="space-y-6">
+					<!-- Profile Input -->
+					<div class="space-y-2">
+						<label for="persona-profile" class="block text-lg font-medium text-raifDark">Профиль</label>
+						<input 
+							type="text" 
+							id="persona-profile" 
+							name="persona-profile" 
+							required 
+							placeholder="Например: Junior Python Developer"
+							class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-raifYellow focus:border-transparent outline-none transition-all"
+						>
+					</div>
+
+					<!-- Skill Input -->
+					<div class="space-y-2">
+						<label for="persona-skill" class="block text-lg font-medium text-raifDark">Навык для оценки</label>
+						<input 
+							type="text" 
+							id="persona-skill" 
+							name="persona-skill" 
+							required 
+							placeholder="Например: Python programming"
+							class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-raifYellow focus:border-transparent outline-none transition-all"
+						>
+					</div>
+
+					<!-- Gender Toggle -->
+					<div class="space-y-2">
+						<label class="block text-lg font-medium text-raifDark mb-3">Пол кандидата</label>
+						<div class="flex justify-center">
+							<label class="relative inline-flex items-center cursor-pointer">
+								<input type="checkbox" class="sr-only peer" id="genderToggle">
+								<div class="w-24 h-12 bg-pink-400 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-raifYellow/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-10 after:w-10 after:transition-all peer-checked:bg-blue-500"></div>
+								<div class="absolute left-3 top-2.5 text-white text-lg font-medium">♀</div>
+								<div class="absolute right-3 top-2.5 text-white text-lg font-medium">♂</div>
+							</label>
+						</div>
+					</div>
+
+					<!-- Honesty Level Slider -->
+					<div class="space-y-4">
+						<div class="flex justify-between items-center">
+							<label class="block text-lg font-medium text-raifDark">Уровень честности</label>
+							<span id="honestyValue" class="text-raifGray font-medium">5</span>
+						</div>
+						<div class="flex items-center space-x-4">
+							<span class="text-sm text-raifGray">Хитрый</span>
+							<div class="flex-1 relative">
+								<input 
+									type="range" 
+									id="honestySlider" 
+									min="1" 
+									max="10" 
+									value="5"
+									class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-raifYellow"
+								>
+								<div class="absolute -bottom-6 left-0 right-0 flex justify-between px-2">
+									<span class="text-xs text-raifGray">1</span>
+									<span class="text-xs text-raifGray">10</span>
+								</div>
+							</div>
+							<span class="text-sm text-raifGray">Честный</span>
+						</div>
+					</div>
+
+					<!-- Submit Button -->
+					<button type="submit" class="w-full bg-raifDark text-white py-4 px-6 rounded-xl font-medium hover:bg-raifDark/90 transition-colors mt-8">
+						Начать интервью
+					</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- Decorative Elements -->
+		<div class="absolute left-0 top-1/4 -z-10">
+			<div class="w-24 h-24 bg-raifYellow/20 rounded-full blur-xl"></div>
+		</div>
+		<div class="absolute right-0 bottom-1/4 -z-10">
+			<div class="w-32 h-32 bg-raifYellow/20 rounded-full blur-xl"></div>
+		</div>
+	</div>
+
+	<script>
+		// Update honesty value display
+		document.getElementById('honestySlider').addEventListener('input', function() {
+			document.getElementById('honestyValue').textContent = this.value;
+		});
+
+		// Form submission
+		document.getElementById('persona-form').addEventListener('submit', function(event) {
+			event.preventDefault();
+			const persona_profile = document.getElementById('persona-profile').value.trim();
+			const persona_skill = document.getElementById('persona-skill').value.trim();
+			const gender = document.getElementById('genderToggle').checked ? 'male' : 'female';
+			const honesty_level = document.getElementById('honestySlider').value;
+
+			if (!persona_profile || !persona_skill) {
+				alert('Пожалуйста, заполните оба поля: профиль и навык.');
+				return;
+			}
+
+			window.location.href = `/interview?persona=${encodeURIComponent(persona_profile)}&skill=${encodeURIComponent(persona_skill)}&gender=${gender}&honesty_level=${honesty_level}`;
+		});
+	</script>
 </body>
 </html>
