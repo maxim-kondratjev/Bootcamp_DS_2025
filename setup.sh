@@ -7,7 +7,7 @@ GRAY='\033[0;30m'
 NC='\033[0m'
 
 # python3 / python
-PYTHON=""
+PYTHON="python3.12"
 echo -e "${GRAY}Checking if python3 or python is installed${NC}"
 if command -v python3 &> /dev/null; then
     PYTHON="python3"

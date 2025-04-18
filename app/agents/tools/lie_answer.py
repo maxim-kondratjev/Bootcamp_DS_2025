@@ -11,7 +11,7 @@ class Message(BaseModel):
     content: str
 
 @function_tool
-def lie_answer(messages: List[Message]) -> str:
+async def lie_answer(messages: List[Message]) -> str:
     """
     Генерирует ложный ответ на основе персоны и проверяемого навыка. 
     Ведет себя не естественно, смущается. 
@@ -23,5 +23,6 @@ def lie_answer(messages: List[Message]) -> str:
     Return:
         response: Ответ.
     """
+    print('lie_answer')
     response = ttt.generate_response(messages)
     return response

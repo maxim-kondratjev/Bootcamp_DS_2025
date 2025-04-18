@@ -31,6 +31,7 @@ async def websocket_interview(ws: WebSocket, persona: str = Query("Junior Python
     system_prompt = prompts["persona_system_prompt"].format(persona=persona, skill=skill)
     agent = create_interviewee_agent(system_prompt)  # агент для интервью
     try:
+        messages = []
         while True:
             data = await ws.receive_text()  # сообщение от клиента
             json_data = json.loads(data)
@@ -45,11 +46,12 @@ async def websocket_interview(ws: WebSocket, persona: str = Query("Junior Python
                 user_input = stt.transcribe_from_path(temp_audio_path)  # Распознаём речь
                 is_audio = True
             # Формируем историю сообщений для передачи агенту
-            messages = [ttt.create_chat_message(msg["role"], msg["content"]) for msg in json_data.get("history", [])]
-            messages.append(ttt.create_chat_message("user", user_input))  # Добавляем текущее сообщение пользователя
+            last_user_message = ttt.create_chat_message("user", user_input)  # Добавляем текущее сообщение пользователя
             # Получаем ответ от агента
-            response = await Runner.run(agent, messages)
-            # response = await Runner.run(agent, user_input, context={"messages": messages}) # Вариант с контекстом
+            response = await Runner.run(agent, input=[last_message], context={"messages": messages})# Вариант с контекстом
+            messages.append(last_message)
+            print(messages)
+
             agent_text = response.final_output  # Текстовый ответ агента
             if is_audio:
                 # Генерируем аудиофайл с ответом агента
