@@ -25,11 +25,11 @@ prompts = load_prompts("persona_system_prompt.yaml")
 
 # Вебсокет-эндпоинт для интервью
 @router.websocket("/ws/interview")
-async def websocket_interview(ws: WebSocket, persona: str = Query("Junior Python Developer"), skill: str = Query("Python programming")):
+async def websocket_interview(ws: WebSocket, persona: str = Query("Junior Python Developer"), skill: str = Query("Python programming"), gender: str = Query("female"), honesty_level: int = Query(5)):
     await ws.accept()  # Принимаем подключение
     # системный промпт для агента на основе выбранной персоны и навыка
-    system_prompt = prompts["persona_system_prompt"].format(persona=persona, skill=skill)
-    agent = create_interviewee_agent(system_prompt)  # агент для интервью
+    system_prompt = prompts["persona_system_prompt"].format(persona=persona, skill=skill, gender=gender, honesty_level=honesty_level)
+    agent = create_interviewee_agent(system_prompt)
     try:
         while True:
             data = await ws.receive_text()  # сообщение от клиента
@@ -50,7 +50,7 @@ async def websocket_interview(ws: WebSocket, persona: str = Query("Junior Python
             # Получаем ответ от агента
             response = await Runner.run(agent, messages)
             # response = await Runner.run(agent, user_input, context={"messages": messages}) # Вариант с контекстом
-            agent_text = response.final_output  # Текстовый ответ агента
+            agent_text = response.final_output
             if is_audio:
                 # Генерируем аудиофайл с ответом агента
                 tts_response = tts.generate_speech(agent_text, tone=prompts["persona_voice_tone_prompt"])
