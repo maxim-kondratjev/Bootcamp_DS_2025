@@ -15,7 +15,7 @@ class STAROutput(BaseModel):
 def create_evaluation_agent(system_prompt: str) -> Agent:
     return Agent(
         name="Evaluation Agent",
-        handoff_description="Оценка сообщений с использованием STAR.",
+        handoff_description="Оценка сообщений с использованием метода STAR.",
         instructions=system_prompt,
         tools=[extract_situation, extract_action, extract_task, extract_result],
         output_type=STAROutput
