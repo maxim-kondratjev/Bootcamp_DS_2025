@@ -2,7 +2,7 @@
 set -e
 
 APP_DIR='/app'
-REPO_URL='git@github.com/maxim-kondratjev/Bootcamp_DS_2025.git'
+REPO_URL='git@github.com:maxim-kondratjev/Bootcamp_DS_2025.git'
 OPENAI_API_KEY=$OPENAI_API_KEY
 PORT=8000
 
