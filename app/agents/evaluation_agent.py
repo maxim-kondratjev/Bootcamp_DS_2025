@@ -1,6 +1,6 @@
 from agents import Agent
 from app.agents.tools.extract_situation import extract_situation
-from app.agents.tools.extract_task import extract_taskgit 
+from app.agents.tools.extract_task import extract_task
 from app.agents.tools.extract_action import extract_action
 from app.agents.tools.extract_result import extract_result
 from pydantic import BaseModel
