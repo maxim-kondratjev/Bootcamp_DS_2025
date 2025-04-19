@@ -33,7 +33,7 @@
             <!-- Interview Info Panel -->
             <div class="bg-gray-50 p-6 rounded-t-2xl border-b border-gray-100">
                 <h2 class="text-xl font-bold text-raifDark mb-4">Текущая сессия интервью</h2>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="bg-white p-4 rounded-xl shadow-sm">
                         <p class="text-sm font-medium text-raifGray mb-1">Профиль кандидата</p>
                         <p id="personaDisplay" class="text-raifDark font-medium">{{ persona if persona else "Not specified" }}</p>
@@ -43,12 +43,12 @@
                         <p id="skillDisplay" class="text-raifDark font-medium">{{ skill if skill else "Not specified" }}</p>
                     </div>
                     <div class="bg-white p-4 rounded-xl shadow-sm">
-                        <p class="text-sm font-medium text-raifGray mb-1">Пол кандидата</p>
-                        <p id="genderDisplay" class="text-raifDark font-medium">{{ gender if gender else "Not specified" }}</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl shadow-sm">
                         <p class="text-sm font-medium text-raifGray mb-1">Уровень честности</p>
                         <p id="honestyDisplay" class="text-raifDark font-medium">{{ honesty_level if honesty_level else "Not specified" }}</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm">
+                        <p class="text-sm font-medium text-raifGray mb-1">Уровень опыта</p>
+                        <p id="experienceDisplay" class="text-raifDark font-medium">{{ experience_level if experience_level else "Not specified" }}</p>
                     </div>
                 </div>
             </div>
@@ -120,19 +120,19 @@
     const urlParams = new URLSearchParams(window.location.search);
     const currentPersona = urlParams.get('persona');
     const currentSkill = urlParams.get('skill');
-    const currentGender = urlParams.get('gender');
     const currentHonesty = urlParams.get('honesty_level');
+    const currentExperience = urlParams.get('experience_level');
 
     // Если параметры отсутствуют, возвращаем пользователя на выбор профиля
-    if (!currentPersona || !currentSkill || !currentGender || !currentHonesty) {
+    if (!currentPersona || !currentSkill || !currentHonesty || !currentExperience) {
         window.location.href = '/select-persona';
     }
 
     // --- Отображение выбранных параметров на странице ---
     document.getElementById('personaDisplay').textContent = currentPersona;
     document.getElementById('skillDisplay').textContent = currentSkill;
-    document.getElementById('genderDisplay').textContent = currentGender === 'male' ? 'Мужской' : 'Женский';
     document.getElementById('honestyDisplay').textContent = `${currentHonesty}/10 (${currentHonesty < 5 ? 'более хитрый' : 'более честный'})`;
+    document.getElementById('experienceDisplay').textContent = `${currentExperience}/10 (${currentExperience < 5 ? 'новичок' : 'опытный'})`;
 
     // --- Глобальные переменные для работы с аудио, состоянием соединения и историей сообщений ---
     let mediaRecorder;
@@ -147,8 +147,8 @@
         timestamp: new Date().toISOString(),
         persona: currentPersona,
         skill: currentSkill,
-        gender: currentGender,
         honesty_level: currentHonesty,
+        experience_level: currentExperience,
         messages: []
     };
 
@@ -157,7 +157,7 @@
         let wsHost = window.location.host;
         if (!wsHost || wsHost === 'false') wsHost = 'localhost:8000';
         const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-        const wsUrl = `${wsProtocol}://${wsHost}/ws/interview?persona=${encodeURIComponent(currentPersona)}&skill=${encodeURIComponent(currentSkill)}&gender=${currentGender}&honesty_level=${currentHonesty}`;
+        const wsUrl = `${wsProtocol}://${wsHost}/ws/interview?persona=${encodeURIComponent(currentPersona)}&skill=${encodeURIComponent(currentSkill)}&honesty_level=${currentHonesty}&experience_level=${currentExperience}`;
         ws = new WebSocket(wsUrl);
         updateConnectionStatus('Подключение...', 'yellow');
         ws.onopen = () => {
@@ -324,8 +324,8 @@
             timestamp: new Date().toISOString(),
             persona: currentPersona,
             skill: currentSkill,
-            gender: currentGender,
             honesty_level: currentHonesty,
+            experience_level: currentExperience,
             messages: conversationHistory.messages,
         };
         if (!interviewData.messages.length) throw new Error("Нет сообщений для сохранения");

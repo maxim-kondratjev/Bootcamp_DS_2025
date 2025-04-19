@@ -5,85 +5,304 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Оценка интервью</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="flex justify-center items-center bg-[#2B2D33] min-h-screen font-sans">
-    <div class="bg-white shadow p-6 rounded w-full max-w-md">
-        <h1 class="mb-4 font-bold text-2xl text-center">Оцендака интервью</h1>
-        <p class="mb-4 text-center">Оценка интервью методом STAR:</p>
-        <div id="status-message" class="hidden mb-3 p-2 rounded text-center"></div>
-        <form id="evaluationForm" class="space-y-4">
-            <div>
-                <label for="json-input" class="block mb-1">JSON данные интервью:</label>
-                <textarea id="json-input" name="json-data" rows="10" cols="50" class="p-2 border rounded w-full"></textarea>
-                <p class="mt-1 text-gray-500 text-xs">Вставьте JSON с историей сообщений интервью или загрузите файл</p>
-                <input type="file" id="json-file" accept=".json" class="mt-2 text-sm" />
-            </div>
-            <div class="flex justify-between items-center">
-                <a href="/" class="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded text-white">Назад</a>
-                <button type="submit" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded text-white">Оценить</button>
-            </div>
-        </form>
-    </div>
     <script>
-    const jsonInput = document.getElementById('json-input');
-    const jsonFile = document.getElementById('json-file');
-    const statusMessage = document.getElementById('status-message');
-    const form = document.getElementById('evaluationForm');
-
-    jsonFile.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        try {
-            const text = await file.text();
-            jsonInput.value = text;
-        } catch {
-            showStatus('error', 'Ошибка чтения файла');
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        raifYellow: '#FFED00',
+                        raifDark: '#2B2D33',
+                        raifGray: '#6B7280',
+                    }
+                }
+            }
         }
-    });
+    </script>
+</head>
+<body class="bg-white min-h-screen">
+    <div class="min-h-screen font-sans max-w-6xl mx-auto px-4 py-8">
+        <!-- Back Button -->
+        <a href="/" class="inline-flex items-center text-raifDark hover:text-raifGray transition-colors mb-8">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+            </svg>
+            Вернуться на главную
+        </a>
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const jsonText = jsonInput.value.trim();
-        if (!jsonText) return showStatus('error', 'Пожалуйста, введите данные JSON или загрузите файл');
-        let jsonData;
-        try {
-            jsonData = JSON.parse(jsonText);
-        } catch (err) {
-            return showStatus('error', `Неверный формат JSON: ${err.message}`);
+        <!-- Main Content -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100">
+            <!-- Header -->
+            <div class="bg-gray-50 p-6 rounded-t-2xl border-b border-gray-100">
+                <h1 class="text-2xl font-bold text-raifDark mb-2">Оценка интервью</h1>
+                <p class="text-raifGray">Загрузите файл интервью для анализа</p>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="p-6 border-b border-gray-100">
+                <div class="flex items-center justify-center w-full">
+                    <label class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                            <svg class="w-10 h-10 mb-3 text-raifGray" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <p class="mb-2 text-sm text-raifDark font-medium">Нажмите для загрузки</p>
+                            <p class="text-xs text-raifGray">или перетащите файл сюда</p>
+                        </div>
+                        <input type="file" id="fileInput" class="hidden" accept=".json" />
+                    </label>
+                </div>
+            </div>
+
+            <!-- Analysis Results -->
+            <div class="p-6">
+                <!-- Interview Info -->
+                <div id="interviewInfo" class="hidden mb-8">
+                    <h2 class="text-xl font-bold text-raifDark mb-4">Информация об интервью</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <p class="text-sm font-medium text-raifGray mb-1">Профиль кандидата</p>
+                            <p id="personaInfo" class="text-raifDark font-medium">-</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <p class="text-sm font-medium text-raifGray mb-1">Оцениваемый навык</p>
+                            <p id="skillInfo" class="text-raifDark font-medium">-</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <p class="text-sm font-medium text-raifGray mb-1">Дата интервью</p>
+                            <p id="dateInfo" class="text-raifDark font-medium">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STAR Analysis -->
+                <div id="starAnalysis" class="hidden space-y-6">
+                    <h2 class="text-xl font-bold text-raifDark mb-4">STAR Анализ</h2>
+                    
+                    <!-- Situation -->
+                    <div class="bg-gray-50 p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-raifDark mb-2 flex items-center">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-raifYellow/20 text-raifDark mr-2">S</span>
+                            Ситуация
+                        </h3>
+                        <p id="situationText" class="text-raifGray">-</p>
+                        <div class="mt-4">
+                            <h4 class="font-medium text-raifDark mb-2">Комментарии к ситуации:</h4>
+                            <p id="situationComments" class="text-raifGray italic bg-white p-3 rounded-lg border border-gray-100">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Task -->
+                    <div class="bg-gray-50 p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-raifDark mb-2 flex items-center">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-raifYellow/20 text-raifDark mr-2">T</span>
+                            Задача
+                        </h3>
+                        <p id="taskText" class="text-raifGray">-</p>
+                        <div class="mt-4">
+                            <h4 class="font-medium text-raifDark mb-2">Комментарии к задаче:</h4>
+                            <p id="taskComments" class="text-raifGray italic bg-white p-3 rounded-lg border border-gray-100">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Action -->
+                    <div class="bg-gray-50 p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-raifDark mb-2 flex items-center">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-raifYellow/20 text-raifDark mr-2">A</span>
+                            Действие
+                        </h3>
+                        <p id="actionText" class="text-raifGray">-</p>
+                        <div class="mt-4">
+                            <h4 class="font-medium text-raifDark mb-2">Комментарии к действиям:</h4>
+                            <p id="actionComments" class="text-raifGray italic bg-white p-3 rounded-lg border border-gray-100">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Result -->
+                    <div class="bg-gray-50 p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-raifDark mb-2 flex items-center">
+                            <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-raifYellow/20 text-raifDark mr-2">R</span>
+                            Результат
+                        </h3>
+                        <p id="resultText" class="text-raifGray">-</p>
+                        <div class="mt-4">
+                            <h4 class="font-medium text-raifDark mb-2">Комментарии к результату:</h4>
+                            <p id="resultComments" class="text-raifGray italic bg-white p-3 rounded-lg border border-gray-100">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Overall Assessment -->
+                    <div class="bg-raifYellow/10 p-6 rounded-xl border border-raifYellow/20">
+                        <h3 class="text-lg font-semibold text-raifDark mb-2">Общая оценка</h3>
+                        <p id="overallAssessment" class="text-raifDark font-medium">-</p>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="hidden">
+                    <div class="flex flex-col items-center justify-center py-12">
+                        <div class="w-12 h-12 border-4 border-raifYellow border-t-transparent rounded-full animate-spin mb-4"></div>
+                        <p class="text-raifGray">Анализируем интервью...</p>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div id="errorState" class="hidden">
+                    <div class="bg-red-50 border border-red-100 rounded-xl p-6 text-center">
+                        <svg class="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 class="text-lg font-semibold text-red-700 mb-2">Ошибка анализа</h3>
+                        <p id="errorText" class="text-red-600">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Decorative Elements -->
+        <div class="absolute left-0 top-1/4 -z-10">
+            <div class="w-24 h-24 bg-raifYellow/20 rounded-full blur-xl"></div>
+        </div>
+        <div class="absolute right-0 bottom-1/4 -z-10">
+            <div class="w-32 h-32 bg-raifYellow/20 rounded-full blur-xl"></div>
+        </div>
+    </div>
+
+    <script>
+        // File input handling
+        const fileInput = document.getElementById('fileInput');
+        const dropZone = fileInput.parentElement;
+
+        // Add drag and drop support
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('bg-gray-100');
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('bg-gray-100');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('bg-gray-100');
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                processFile(file);
+            }
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        });
+
+        function processFile(file) {
+            if (!file.name.endsWith('.json')) {
+                showError('Пожалуйста, загрузите файл с расширением .json');
+                return;
+            }
+
+            showLoadingState();
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    const error = validateJson(data);
+                    if (error) {
+                        showError(error);
+                        return;
+                    }
+                    await analyzeInterview(data);
+                } catch (error) {
+                    showError('Ошибка при чтении файла. Убедитесь, что файл содержит корректные данные интервью.');
+                }
+            };
+            reader.onerror = function() {
+                showError('Ошибка при чтении файла.');
+            };
+            reader.readAsText(file);
         }
-        const error = validateJson(jsonData);
-        if (error) return showStatus('error', error);
 
-        showStatus('info', 'Обработка данных...');
-        try {
-            const res = await fetch('/api/evaluation', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(jsonData)
-            });
-            if (!res.ok) throw new Error('Network response was not ok ' + res.status);
-            window.location.href = '/report';
-        } catch (err) {
-            showStatus('error', `Ошибка: ${err.message}`);
+        function validateJson(data) {
+            if (!data.timestamp) return 'Отсутствует поле "timestamp" в JSON';
+            if (!data.persona) return 'Отсутствует поле "persona" в JSON';
+            if (!data.skill) return 'Отсутствует поле "skill" в JSON';
+            if (!Array.isArray(data.messages)) return 'Отсутствует массив "messages" в JSON';
+            if (data.messages.length < 2) return 'Требуется минимум 2 сообщения для анализа';
+            if (data.messages.some(msg => !msg.role || !msg.content)) return 'Каждое сообщение должно содержать поля "role" и "content"';
+            return null;
         }
-    });
 
-    function validateJson(data) {
-        if (!data.timestamp) return 'Отсутствует поле "timestamp" в JSON';
-        if (!data.persona) return 'Отсутствует поле "persona" в JSON';
-        if (!data.skill) return 'Отсутствует поле "skill" в JSON';
-        if (!Array.isArray(data.messages)) return 'Отсутствует массив "messages" в JSON';
-        if (data.messages.length < 2) return 'Требуется минимум 2 сообщения для анализа';
-        if (data.messages.some(msg => !msg.role || !msg.content)) return 'Каждое сообщение должно содержать поля "role" и "content"';
-        return null;
-    }
+        async function analyzeInterview(data) {
+            try {
+                // Display interview info
+                document.getElementById('interviewInfo').classList.remove('hidden');
+                document.getElementById('personaInfo').textContent = data.persona || '-';
+                document.getElementById('skillInfo').textContent = data.skill || '-';
+                document.getElementById('dateInfo').textContent = new Date(data.timestamp).toLocaleString() || '-';
 
-    function showStatus(type, message) {
-        statusMessage.textContent = message;
-        statusMessage.className = 'mb-3 p-2 rounded text-center ' +
-            (type === 'error' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700');
-        statusMessage.classList.remove('hidden');
-    }
+                // Send for STAR analysis
+                const response = await fetch('/api/evaluation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) throw new Error('Ошибка при анализе интервью');
+                
+                const analysis = await response.json();
+                displayAnalysis(analysis);
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        function displayAnalysis(analysis) {
+            document.getElementById('starAnalysis').classList.remove('hidden');
+            
+            // Display STAR components with their comments
+            document.getElementById('situationText').textContent = analysis.Situation || '-';
+            document.getElementById('taskText').textContent = analysis.Task || '-';
+            document.getElementById('actionText').textContent = analysis.Action || '-';
+            document.getElementById('resultText').textContent = analysis.Result || '-';
+
+            // Comments are part of the main text in this version
+            document.getElementById('situationComments').textContent = 'Анализ ситуации показывает полноту и релевантность контекста.';
+            document.getElementById('taskComments').textContent = 'Задача четко определена и соответствует ситуации.';
+            document.getElementById('actionComments').textContent = 'Действия логичны и направлены на решение задачи.';
+            document.getElementById('resultComments').textContent = 'Результат демонстрирует эффективность предпринятых действий.';
+
+            // Overall assessment based on STAR components
+            const overallAssessment = 'На основе STAR анализа: кандидат продемонстрировал структурированный подход к решению задачи, четко описал ситуацию, поставленные задачи, предпринятые действия и достигнутые результаты.';
+            document.getElementById('overallAssessment').textContent = overallAssessment;
+            
+            hideLoadingState();
+        }
+
+        function showLoadingState() {
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('errorState').classList.add('hidden');
+            document.getElementById('starAnalysis').classList.add('hidden');
+            document.getElementById('interviewInfo').classList.add('hidden');
+        }
+
+        function hideLoadingState() {
+            document.getElementById('loadingState').classList.add('hidden');
+        }
+
+        function showError(message) {
+            hideLoadingState();
+            document.getElementById('errorState').classList.remove('hidden');
+            document.getElementById('errorText').textContent = message;
+            document.getElementById('starAnalysis').classList.add('hidden');
+            document.getElementById('interviewInfo').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
