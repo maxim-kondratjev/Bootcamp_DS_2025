@@ -13,11 +13,128 @@
 						raifYellow: '#FFED00',
 						raifDark: '#2B2D33',
 						raifGray: '#6B7280',
+					},
+					keyframes: {
+						slideRight: {
+							'0%': { transform: 'translateX(0)' },
+							'100%': { transform: 'translateX(100%)' }
+						},
+						slideLeft: {
+							'0%': { transform: 'translateX(100%)' },
+							'100%': { transform: 'translateX(0)' }
+						}
+					},
+					animation: {
+						slideRight: 'slideRight 0.3s ease-in-out',
+						slideLeft: 'slideLeft 0.3s ease-in-out'
 					}
 				}
 			}
 		}
 	</script>
+	<style>
+		/* Custom slider styles */
+		input[type="range"] {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 100%;
+			height: 3px;
+			background: #e5e7eb;
+			border-radius: 0;
+			outline: none;
+			background-image: linear-gradient(to right, #e5e7eb, #e5e7eb);
+			background-size: 100% 3px;
+			background-repeat: no-repeat;
+		}
+
+		input[type="range"]::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 0;
+			height: 0;
+			border-left: 8px solid transparent;
+			border-right: 8px solid transparent;
+			border-top: 12px solid #FFED00;
+			background: transparent;
+			cursor: pointer;
+			position: relative;
+			top: -12px;
+		}
+
+		input[type="range"]::-moz-range-thumb {
+			width: 0;
+			height: 0;
+			border-left: 8px solid transparent;
+			border-right: 8px solid transparent;
+			border-top: 12px solid #FFED00;
+			background: transparent;
+			cursor: pointer;
+			border: none;
+			position: relative;
+			top: -12px;
+		}
+
+		input[type="range"]::-moz-range-track {
+			height: 3px;
+			background: #e5e7eb;
+			border-radius: 0;
+		}
+
+		/* Add a subtle shadow to the track */
+		input[type="range"] {
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+		}
+
+		/* Center the thumb on the track */
+		input[type="range"]::-webkit-slider-thumb {
+			margin-top: -6px; /* This centers the thumb on the 4px track */
+		}
+
+		input[type="range"]::-moz-range-thumb {
+			margin-top: -6px; /* Same for Firefox */
+		}
+
+		/* Remove progress bar styles */
+		.slider-container {
+			position: relative;
+		}
+
+		/* Custom toggle styles */
+		.gender-toggle {
+			position: relative;
+			width: 200px;
+			height: 50px;
+			background: #f3f4f6;
+			border-radius: 25px;
+			padding: 4px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		.gender-toggle:hover {
+			background: #e5e7eb;
+		}
+
+		.gender-toggle-slider {
+			position: absolute;
+			width: calc(50% - 4px);
+			height: calc(100% - 8px);
+			background: #FFED00;
+			border-radius: 21px;
+			transition: transform 0.3s ease, background-color 0.3s ease;
+		}
+
+		.gender-toggle.male .gender-toggle-slider {
+			transform: translateX(100%);
+			background: #FFED00;
+		}
+
+		.gender-option {
+			position: relative;
+			z-index: 1;
+			transition: color 0.3s ease;
+		}
+	</style>
 </head>
 <body class="bg-white min-h-screen">
 	<div class="min-h-screen font-sans max-w-6xl mx-auto px-4 py-12">
@@ -37,7 +154,7 @@
 			</div>
 
 			<div class="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
-				<form id="persona-form" class="space-y-6">
+				<form id="persona-form" class="space-y-8">
 					<!-- Profile Input -->
 					<div class="space-y-2">
 						<label for="persona-profile" class="block text-lg font-medium text-raifDark">Профиль</label>
@@ -64,49 +181,65 @@
 						>
 					</div>
 
-					<!-- Gender Toggle -->
-					<div class="space-y-2">
-						<label class="block text-lg font-medium text-raifDark mb-3">Пол кандидата</label>
-						<div class="flex justify-center">
-							<label class="relative inline-flex items-center cursor-pointer">
-								<input type="checkbox" class="sr-only peer" id="genderToggle">
-								<div class="w-24 h-12 bg-pink-400 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-raifYellow/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-10 after:w-10 after:transition-all peer-checked:bg-blue-500"></div>
-								<div class="absolute left-3 top-2.5 text-white text-lg font-medium">♀</div>
-								<div class="absolute right-3 top-2.5 text-white text-lg font-medium">♂</div>
-							</label>
-						</div>
-					</div>
-
 					<!-- Honesty Level Slider -->
 					<div class="space-y-4">
 						<div class="flex justify-between items-center">
 							<label class="block text-lg font-medium text-raifDark">Уровень честности</label>
-							<span id="honestyValue" class="text-raifGray font-medium">5</span>
-						</div>
-						<div class="flex items-center space-x-4">
-							<span class="text-sm text-raifGray">Хитрый</span>
-							<div class="flex-1 relative">
-								<input 
-									type="range" 
-									id="honestySlider" 
-									min="1" 
-									max="10" 
-									value="5"
-									class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-raifYellow"
-								>
-								<div class="absolute -bottom-6 left-0 right-0 flex justify-between px-2">
-									<span class="text-xs text-raifGray">1</span>
-									<span class="text-xs text-raifGray">10</span>
-								</div>
+							<div class="flex items-center space-x-2">
+								<span id="honestyValue" class="text-2xl font-bold text-raifDark">5</span>
+								<span class="text-sm text-raifGray">/10</span>
 							</div>
-							<span class="text-sm text-raifGray">Честный</span>
+						</div>
+						<div class="space-y-4">
+							<input 
+								type="range" 
+								id="honestySlider" 
+								min="1" 
+								max="10" 
+								value="5"
+								class="w-full"
+							>
+							<div class="flex justify-between px-2">
+								<span class="text-sm text-raifGray">Хитрый</span>
+								<span class="text-sm text-raifGray">Честный</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- Experience Level Slider -->
+					<div class="space-y-4">
+						<div class="flex justify-between items-center">
+							<label class="block text-lg font-medium text-raifDark">Уровень опыта</label>
+							<div class="flex items-center space-x-2">
+								<span id="experienceValue" class="text-2xl font-bold text-raifDark">5</span>
+								<span class="text-sm text-raifGray">/10</span>
+							</div>
+						</div>
+						<div class="space-y-4">
+							<input 
+								type="range" 
+								id="experienceSlider" 
+								min="1" 
+								max="10" 
+								value="5"
+								class="w-full"
+							>
+							<div class="flex justify-between px-2">
+								<span class="text-sm text-raifGray">Новичок</span>
+								<span class="text-sm text-raifGray">Опытный</span>
+							</div>
 						</div>
 					</div>
 
 					<!-- Submit Button -->
-					<button type="submit" class="w-full bg-raifDark text-white py-4 px-6 rounded-xl font-medium hover:bg-raifDark/90 transition-colors mt-8">
-						Начать интервью
-					</button>
+					<div class="pt-6">
+						<button 
+							type="submit" 
+							class="w-full py-3 px-6 bg-raifDark text-white rounded-xl font-medium transition-all duration-300 hover:bg-[#1a1b1f] focus:outline-none focus:ring-2 focus:ring-raifYellow focus:ring-offset-2"
+						>
+							Начать интервью
+						</button>
+					</div>
 				</form>
 			</div>
 		</div>
@@ -121,25 +254,44 @@
 	</div>
 
 	<script>
-		// Update honesty value display
-		document.getElementById('honestySlider').addEventListener('input', function() {
-			document.getElementById('honestyValue').textContent = this.value;
-		});
+		// Honesty slider functionality
+		const honestySlider = document.getElementById('honestySlider');
+		const honestyValue = document.getElementById('honestyValue');
+
+		function updateHonestySlider() {
+			const value = honestySlider.value;
+			honestyValue.textContent = value;
+		}
+
+		honestySlider.addEventListener('input', updateHonestySlider);
+		updateHonestySlider(); // Initialize slider state
+
+		// Experience slider functionality
+		const experienceSlider = document.getElementById('experienceSlider');
+		const experienceValue = document.getElementById('experienceValue');
+
+		function updateExperienceSlider() {
+			const value = experienceSlider.value;
+			experienceValue.textContent = value;
+		}
+
+		experienceSlider.addEventListener('input', updateExperienceSlider);
+		updateExperienceSlider(); // Initialize slider state
 
 		// Form submission
 		document.getElementById('persona-form').addEventListener('submit', function(event) {
 			event.preventDefault();
 			const persona_profile = document.getElementById('persona-profile').value.trim();
 			const persona_skill = document.getElementById('persona-skill').value.trim();
-			const gender = document.getElementById('genderToggle').checked ? 'male' : 'female';
 			const honesty_level = document.getElementById('honestySlider').value;
+			const experience_level = document.getElementById('experienceSlider').value;
 
 			if (!persona_profile || !persona_skill) {
 				alert('Пожалуйста, заполните оба поля: профиль и навык.');
 				return;
 			}
 
-			window.location.href = `/interview?persona=${encodeURIComponent(persona_profile)}&skill=${encodeURIComponent(persona_skill)}&gender=${gender}&honesty_level=${honesty_level}`;
+			window.location.href = `/interview?persona=${encodeURIComponent(persona_profile)}&skill=${encodeURIComponent(persona_skill)}&gender=female&honesty_level=${honesty_level}&experience_level=${experience_level}`;
 		});
 	</script>
 </body>
